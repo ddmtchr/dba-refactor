@@ -1,0 +1,14 @@
+package com.ddmtchr.dbarefactor.entity;
+
+public enum BookingStatus {
+    PENDING_HOST_REVIEW,
+    PENDING_PAYMENT,
+    PENDING_CHANGES_REVIEW,
+    REJECTED_BY_HOST,
+    REJECTED_BY_GUEST,
+    REJECTED_BY_PAYMENT_TIMEOUT,
+    PENDING_CHECK_IN,
+    PENDING_PAYMENT_TO_HOST,
+    IN_PROGRESS,
+    FINISHED
+}
