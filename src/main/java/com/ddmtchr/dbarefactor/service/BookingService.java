@@ -98,6 +98,7 @@ public class BookingService {
         }
 
         this.mapper.updateBooking(dto, booking);
+        booking.setStatus(BookingStatus.PENDING_CHANGES_REVIEW);
         return this.mapper.toResponseDto(this.repository.save(booking));
     }
 

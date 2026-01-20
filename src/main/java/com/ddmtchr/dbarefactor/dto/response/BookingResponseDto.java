@@ -1,6 +1,8 @@
 package com.ddmtchr.dbarefactor.dto.response;
 
+import com.ddmtchr.dbarefactor.dto.HasDates;
 import com.ddmtchr.dbarefactor.entity.BookingStatus;
+import com.ddmtchr.dbarefactor.validation.ValidDateRange;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +15,8 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookingResponseDto {
+@ValidDateRange
+public class BookingResponseDto implements HasDates {
     private Long id;
     private Long guestId;
     private Long estateId;
