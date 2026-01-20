@@ -20,7 +20,7 @@ public class TransactionConfig {
         return userTransactionManager;
     }
 
-    @Bean
+    @Bean("transactionManager")
     public PlatformTransactionManager platformTransactionManager(UserTransactionManager userTransactionManager) {
         return new JtaTransactionManager(userTransactionManager, userTransactionManager);
     }
