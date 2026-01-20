@@ -1,5 +1,6 @@
 package com.ddmtchr.dbarefactor.dto.request;
 
+import com.ddmtchr.dbarefactor.dto.HasDates;
 import com.ddmtchr.dbarefactor.validation.ValidDateRange;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @ValidDateRange
-public class BookingRequestDto {
+public class BookingRequestDto implements HasDates {
     @NotNull
     private Long guestId;
 

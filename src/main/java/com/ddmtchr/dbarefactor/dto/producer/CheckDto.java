@@ -1,5 +1,7 @@
 package com.ddmtchr.dbarefactor.dto.producer;
 
+import com.ddmtchr.dbarefactor.dto.HasDates;
+import com.ddmtchr.dbarefactor.validation.ValidDateRange;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -14,7 +16,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class CheckDto {
+@ValidDateRange
+public class CheckDto implements HasDates {
 
     private Long bookingId;
 
