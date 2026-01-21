@@ -21,7 +21,7 @@
         <lombok.version>1.18.34</lombok.version>
         <postgrsql.driver.version>42.7.5</postgrsql.driver.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
-        <flyway.version>11.8.1</flyway.version>
+        <liquibase.version>4.28.0</liquibase.version>
     </properties>
     <dependencies>
         <dependency>
@@ -58,15 +58,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-            <version>${flyway.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-postgresql</artifactId>
-            <version>${flyway.version}</version>
-            <scope>runtime</scope>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.version}</version>
         </dependency>
 
         <dependency>
@@ -151,6 +145,19 @@
                             <version>${mapstruct.version}</version>
                         </path>
                     </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>${liquibase.version}</version>
+                <configuration>
+                    <driver>org.postgresql.Driver</driver>
+                    <url>jdbc:postgresql://localhost:5432/blps</url>
+                    <username>postgres</username>
+                    <password>postgres</password>
+                    <outputChangeLogFile>src/main/resources/liquibase-outputChangeLog.xml</outputChangeLogFile>
                 </configuration>
             </plugin>
         </plugins>
