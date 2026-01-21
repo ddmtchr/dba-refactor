@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Getter
@@ -17,7 +18,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @ToString
 @ValidDateRange
-public class CheckDto implements HasDates {
+public class CheckDto implements HasDates, Serializable {
 
     private Long bookingId;
 

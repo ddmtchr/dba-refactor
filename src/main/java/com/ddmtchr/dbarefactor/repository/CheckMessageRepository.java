@@ -1,6 +1,7 @@
 package com.ddmtchr.dbarefactor.repository;
 
 import com.ddmtchr.dbarefactor.entity.CheckMessage;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,7 +13,7 @@ import java.util.List;
 @Repository
 public interface CheckMessageRepository extends JpaRepository<CheckMessage, Long> {
 
-    List<CheckMessage> findAllBySent(Boolean sent);
+    List<CheckMessage> findAllBySentFalseOrderByBookingId(Limit limit);
 
     @Modifying
     @Query("update CheckMessage m set m.sent = true where m.bookingId in :ids")
