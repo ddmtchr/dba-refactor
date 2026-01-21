@@ -6,6 +6,7 @@ import com.ddmtchr.dbarefactor.service.scheduling.PaymentTimeoutsJob;
 import com.ddmtchr.dbarefactor.service.scheduling.PayoutsJob;
 import org.quartz.*;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.quartz.QuartzProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -97,7 +98,7 @@ public class QuartzConfig {
     }
 
     @Bean
-    public SchedulerFactoryBean schedulerFactoryBean(DataSource quartzDataSource, ApplicationContext applicationContext,
+    public SchedulerFactoryBean schedulerFactoryBean(@Qualifier("routingDataSource") DataSource quartzDataSource, ApplicationContext applicationContext,
                                                      QuartzProperties properties, ObjectProvider<JobDetail> jobDetails,
                                                      ObjectProvider<Trigger> triggers) {
         SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
