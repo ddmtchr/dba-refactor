@@ -1,5 +1,10 @@
 package com.ddmtchr.dbarefactor.config;
 
+import com.ddmtchr.dbarefactor.security.jwt.JwtAuthenticationFilter;
+import com.ddmtchr.dbarefactor.security.jwt.JwtAuthorizationFilter;
+import com.ddmtchr.dbarefactor.security.jwt.JwtProvider;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,11 +17,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.AccessDeniedHandlerImpl;
-import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -25,7 +27,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private static final String REALM_NAME = "dbarefactor";
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
@@ -35,18 +36,6 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationEntryPoint basicAuthenticationEntryPoint() {
-        BasicAuthenticationEntryPoint authenticationEntryPoint = new BasicAuthenticationEntryPoint();
-        authenticationEntryPoint.setRealmName(REALM_NAME);
-        return authenticationEntryPoint;
-    }
-
-    @Bean
-    public AccessDeniedHandler basicAccessDeniedHandler() {
-        return new AccessDeniedHandlerImpl();
     }
 
     @Bean
@@ -65,19 +54,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            CorsConfigurationSource corsConfigurationSource,
-                                           AuthenticationEntryPoint basicAuthenticationEntryPoint,
-                                           AccessDeniedHandler basicAccessDeniedHandler) throws Exception {
+                                           JwtAuthorizationFilter jwtAuthorizationFilter,
+                                           JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
-                .httpBasic(httpBasic ->
-                        httpBasic
-                                .authenticationEntryPoint(basicAuthenticationEntryPoint)
-                                .realmName(REALM_NAME)
-                )
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(basicAuthenticationEntryPoint)
-                        .accessDeniedHandler(basicAccessDeniedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                                 auth
@@ -103,9 +84,35 @@ public class SecurityConfig {
 
                                         .anyRequest().authenticated()
 //                                .anyRequest().permitAll()
-                );
+                )
+                .addFilterAt(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthorizationFilter, JwtAuthenticationFilter.class)
+        ;
 
         return http.build();
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager,
+                                                           JwtProvider jwtProvider,
+                                                           ObjectMapper objectMapper) {
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtProvider, objectMapper);
+        filter.setAuthenticationManager(authenticationManager);
+        return filter;
+    }
+
+    @Bean
+    public FilterRegistrationBean<JwtAuthenticationFilter> registrationJWTAuthentication(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        FilterRegistrationBean<JwtAuthenticationFilter> registration = new FilterRegistrationBean<>(jwtAuthenticationFilter);
+        registration.setEnabled(false);
+        return registration;
+    }
+
+    @Bean
+    public FilterRegistrationBean<JwtAuthorizationFilter> registrationJWTAuthorization(JwtAuthorizationFilter jwtAuthorizationFilter) {
+        FilterRegistrationBean<JwtAuthorizationFilter> registration = new FilterRegistrationBean<>(jwtAuthorizationFilter);
+        registration.setEnabled(false);
+        return registration;
     }
 
 }

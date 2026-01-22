@@ -18,6 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final UserService userService;
 
+    @PostMapping("/login")
+    public ResponseEntity<Void> login() {
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody @Valid RegisterRequest request) {
         if (userService.existsByUsername(request.getUsername())) {

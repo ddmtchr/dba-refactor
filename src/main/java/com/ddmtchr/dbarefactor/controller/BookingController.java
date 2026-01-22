@@ -24,13 +24,13 @@ public class BookingController {
         return new ResponseEntity<>(this.bookingService.addBooking(bookingRequestDto), HttpStatus.CREATED);
     }
 
-    @GetMapping("byHost")
+    @GetMapping("/byHost")
     public ResponseEntity<List<BookingResponseDto>> findAllBookingsOfHost() {
         String username = SecurityUtil.getCurrentUser().getUsername();
         return new ResponseEntity<>(this.bookingService.findAllByHost(username), HttpStatus.OK);
     }
 
-    @GetMapping("byGuest")
+    @GetMapping("/byGuest")
     public ResponseEntity<List<BookingResponseDto>> findAllBookingsOfGuest() {
         String username = SecurityUtil.getCurrentUser().getUsername();
         return new ResponseEntity<>(this.bookingService.findAllByGuest(username), HttpStatus.OK);
