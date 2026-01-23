@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - 'v**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache Maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: maven-${{ hashFiles('**/pom.xml') }}
+
+      - name: Build & Test
+        run: mvn clean verify jacoco:report
+
+      - name: Check coverage
+        run: |
+          COVERAGE=$(grep -oP 'Total.*?(\d+%)' target/site/jacoco/index.html | tail -1 | tr -d '%')
+          if [ "$COVERAGE" -lt 80 ]; then
+            echo "::warning::Coverage is $COVERAGE%"
+          fi
+
+#      - name: SonarQube analysis
+#        run: mvn sonar:sonar \
+#          -Dsonar.projectKey=my-project \
+#          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+#          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+#          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
