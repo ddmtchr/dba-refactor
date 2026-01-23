@@ -63,7 +63,7 @@ class PayControllerIT extends AbstractIntegrationTest {
         booking = bookingRepository.save(booking);
 
         mockMvc.perform(put("/pay/{id}", booking.getId()))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
     @WithMockUser(authorities = {"GUEST"}, username = "guest")

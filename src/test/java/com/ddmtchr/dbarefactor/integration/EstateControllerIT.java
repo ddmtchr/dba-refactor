@@ -40,11 +40,11 @@ class EstateControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void addEstate_NoAuth_403() throws Exception {
+    void addEstate_NoAuth_401() throws Exception {
         mockMvc.perform(post("/estate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
