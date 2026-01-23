@@ -1,8 +1,6 @@
 package com.ddmtchr.dbarefactor.config;
 
-import com.ddmtchr.dbarefactor.security.jwt.JwtAuthenticationFilter;
-import com.ddmtchr.dbarefactor.security.jwt.JwtAuthorizationFilter;
-import com.ddmtchr.dbarefactor.security.jwt.JwtProvider;
+import com.ddmtchr.dbarefactor.security.jwt.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -55,11 +53,17 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            CorsConfigurationSource corsConfigurationSource,
                                            JwtAuthorizationFilter jwtAuthorizationFilter,
-                                           JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+                                           JwtAuthenticationFilter jwtAuthenticationFilter,
+                                           RestAuthenticationEntryPoint authenticationEntryPoint,
+                                           RestAccessDeniedHandler accessDeniedHandler) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
+                )
                 .authorizeHttpRequests(auth ->
                                 auth
                                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/auth/**").permitAll()
@@ -94,10 +98,12 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager,
+                                                           RestAuthenticationFailureHandler authenticationFailureHandler,
                                                            JwtProvider jwtProvider,
                                                            ObjectMapper objectMapper) {
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtProvider, objectMapper);
         filter.setAuthenticationManager(authenticationManager);
+        filter.setAuthenticationFailureHandler(authenticationFailureHandler);
         return filter;
     }
 
