@@ -30,6 +30,10 @@ jobs:
       - name: Build & Test
         run: mvn clean verify jacoco:report
 
+      - name: Install xq
+        run: |
+          curl -sSL https://bit.ly/install-xq | sudo bash
+
       - name: Check coverage
         run: |
           MISSED=$(xq target/site/jacoco/jacoco.xml -x "/report/counter[@type='INSTRUCTION']/@missed")
