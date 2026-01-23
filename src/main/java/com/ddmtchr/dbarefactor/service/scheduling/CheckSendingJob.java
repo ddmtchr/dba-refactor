@@ -22,10 +22,12 @@ public class CheckSendingJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(@NonNull JobExecutionContext context) {
+        log.info("----- Job CheckSendingJob started -----");
         try {
             checkMessageSender.processCheckMessages();
+            log.info("----- Job CheckSendingJob finished -----");
         } catch (Exception e) {
-            log.error("CheckSendingJob failed: {}", e.getMessage());
+            log.error("Job CheckSendingJob failed: {}", e.getMessage());
         }
     }
 }

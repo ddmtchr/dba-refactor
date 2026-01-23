@@ -5,12 +5,14 @@ import com.ddmtchr.dbarefactor.entity.BookingStatus;
 import com.ddmtchr.dbarefactor.repository.BookingRepository;
 import com.ddmtchr.dbarefactor.security.entity.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PayoutService {
@@ -36,6 +38,7 @@ public class PayoutService {
 
         paymentsByHost.forEach(this.paymentService::payToHost);
 
-        this.bookingRepository.updateStatusByIdsAndPayoutScheduledAtBefore(paidBookingIds, now, BookingStatus.IN_PROGRESS);
+        int updated = this.bookingRepository.updateStatusByIdsAndPayoutScheduledAtBefore(paidBookingIds, now, BookingStatus.IN_PROGRESS);
+        log.info("Processed payouts for {} bookings", updated);
     }
 }

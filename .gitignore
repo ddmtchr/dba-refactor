@@ -31,5 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
 /ObjectStore/
 /PutObjectStoreDirHere/
+
+tmlog*
+/postgres-data

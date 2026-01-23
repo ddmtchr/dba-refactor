@@ -26,12 +26,6 @@ public class JwtUtil {
         return claims.getSubject();
     }
 
-    public static String getLoginFromHttpRequest(HttpServletRequest httpServletRequest) {
-        return getTokenFromRequest(httpServletRequest)
-                .map(JwtUtil::getLoginFromToken)
-                .orElse("");
-    }
-
     public static Claims extractClaims(String token) {
         return Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET))).build().parseClaimsJws(token).getBody();
     }
