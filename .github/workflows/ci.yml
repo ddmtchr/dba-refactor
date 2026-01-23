@@ -32,10 +32,10 @@ jobs:
 
       - name: Check coverage
         run: |
-          COVERAGE=$(grep -oP 'Total.*?(\d+%)' target/site/jacoco/index.html | tail -1 | tr -d '%')
-          if [ "$COVERAGE" -lt 80 ]; then
-            echo "::warning::Coverage is $COVERAGE%"
-          fi
+          MISSED=$(xq target/site/jacoco/jacoco.xml -x "/report/counter[@type='INSTRUCTION']/@missed")
+          COVER=$(xq target/site/jacoco/jacoco.xml -x "/report/counter[@type='INSTRUCTION']/@covered")
+          TOTAL=`echo "100 * $COVER / ($MISSED + $COVER)" | bc -l`
+          echo "Coverage is $TOTAL%"
 
 #      - name: SonarQube analysis
 #        run: mvn sonar:sonar \
