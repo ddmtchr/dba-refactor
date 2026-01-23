@@ -2,72 +2,87 @@ package com.ddmtchr.dbarefactor.controller;
 
 import com.ddmtchr.dbarefactor.exception.*;
 import io.swagger.v3.oas.annotations.Hidden;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.util.stream.Collectors;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestControllerAdvice
 @Hidden
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
-        ex.printStackTrace();
-        return ResponseEntity.internalServerError().body(ex.getMessage());
+    public ResponseEntity<Object> handleRuntimeException(@NonNull RuntimeException ex, @NonNull WebRequest request) {
+        logger.error(ex.getMessage(), ex);
+        HttpStatusCode status = HttpStatus.INTERNAL_SERVER_ERROR;
+        ProblemDetail body = createProblemDetail(ex, status, ex.getMessage(), null, null,  request);
+        return handleExceptionInternal(ex, body, HttpHeaders.EMPTY, status, request);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException ex) {
-        ex.printStackTrace();
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<Object> handleBadCredentialsException(@NonNull BadCredentialsException ex, @NonNull WebRequest request) {
+        logger.warn(ex.getMessage());
+        HttpStatusCode status = HttpStatus.UNAUTHORIZED;
+        ProblemDetail body = createProblemDetail(ex, status, ex.getMessage(), null, null,  request);
+        return handleExceptionInternal(ex, body, HttpHeaders.EMPTY, status, request);
     }
 
     @ExceptionHandler(NoAuthenticationException.class)
-    public ResponseEntity<String> handleNoAuthenticationException(NoAuthenticationException ex) {
-        ex.printStackTrace();
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<Object> handleNoAuthenticationException(@NonNull NoAuthenticationException ex, @NonNull WebRequest request) {
+        logger.warn(ex.getMessage());
+        HttpStatusCode status = HttpStatus.UNAUTHORIZED;
+        ProblemDetail body = createProblemDetail(ex, status, ex.getMessage(), null, null,  request);
+        return handleExceptionInternal(ex, body, HttpHeaders.EMPTY, status, request);
     }
 
     @ExceptionHandler(UsernameAlreadyExistsException.class)
-    public ResponseEntity<String> handleAlreadyExistsException(UsernameAlreadyExistsException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+    public ResponseEntity<Object> handleAlreadyExistsException(@NonNull UsernameAlreadyExistsException ex, @NonNull WebRequest request) {
+        logger.warn(ex.getMessage());
+        HttpStatusCode status = HttpStatus.BAD_REQUEST;
+        ProblemDetail body = createProblemDetail(ex, status, ex.getMessage(), null, null,  request);
+        return handleExceptionInternal(ex, body, HttpHeaders.EMPTY, status, request);
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<String> handleIllegalStateException(IllegalStateException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+    public ResponseEntity<Object> handleIllegalStateException(@NonNull IllegalStateException ex, @NonNull WebRequest request) {
+        logger.warn(ex.getMessage());
+        HttpStatusCode status = HttpStatus.BAD_REQUEST;
+        ProblemDetail body = createProblemDetail(ex, status, ex.getMessage(), null, null,  request);
+        return handleExceptionInternal(ex, body, HttpHeaders.EMPTY, status, request);
     }
 
     @ExceptionHandler(InconsistentRequestException.class)
-    public ResponseEntity<String> handleInconsistentRequestException(InconsistentRequestException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+    public ResponseEntity<Object> handleInconsistentRequestException(@NonNull InconsistentRequestException ex, @NonNull WebRequest request) {
+        logger.warn(ex.getMessage());
+        HttpStatusCode status = HttpStatus.BAD_REQUEST;
+        ProblemDetail body = createProblemDetail(ex, status, ex.getMessage(), null, null,  request);
+        return handleExceptionInternal(ex, body, HttpHeaders.EMPTY, status, request);
     }
 
     @ExceptionHandler(InsufficientFundsException.class)
-    public ResponseEntity<String> handleInsufficientFundsException(InsufficientFundsException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+    public ResponseEntity<Object> handleInsufficientFundsException(@NonNull InsufficientFundsException ex, @NonNull WebRequest request) {
+        logger.warn(ex.getMessage());
+        HttpStatusCode status = HttpStatus.BAD_REQUEST;
+        ProblemDetail body = createProblemDetail(ex, status, ex.getMessage(), null, null,  request);
+        return handleExceptionInternal(ex, body, HttpHeaders.EMPTY, status, request);
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> handleNotFoundException(NotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    public ResponseEntity<Object> handleNotFoundException(@NonNull NotFoundException ex, @NonNull WebRequest request) {
+        logger.warn(ex.getMessage());
+        HttpStatusCode status = HttpStatus.NOT_FOUND;
+        ProblemDetail body = createProblemDetail(ex, status, ex.getMessage(), null, null,  request);
+        return handleExceptionInternal(ex, body, HttpHeaders.EMPTY, status, request);
     }
 
     @ExceptionHandler(NoPermissionException.class)
-    public ResponseEntity<String> handleNoPermissionException(NoPermissionException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> handleValidationException(MethodArgumentNotValidException ex) {
-        String errorMessage = ex.getBindingResult().getAllErrors().stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.joining(", "));
-        return ResponseEntity.badRequest().body(errorMessage);
+    public ResponseEntity<Object> handleNoPermissionException(@NonNull NoPermissionException ex, @NonNull WebRequest request) {
+        logger.warn(ex.getMessage());
+        HttpStatusCode status = HttpStatus.FORBIDDEN;
+        ProblemDetail body = createProblemDetail(ex, status, ex.getMessage(), null, null,  request);
+        return handleExceptionInternal(ex, body, HttpHeaders.EMPTY, status, request);
     }
 }
