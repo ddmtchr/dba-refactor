@@ -52,11 +52,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                             FilterChain chain, Authentication authResult) throws ServletException, IOException {
-        JwtResponseDto jwtResponse = jwtProvider.generateTokenAndGetInfo(((User) authResult.getPrincipal()).getUsername());
+        String username = ((User) authResult.getPrincipal()).getUsername();
+        JwtResponseDto jwtResponse = jwtProvider.generateTokenAndGetInfo(username);
         String jsonBody = new ObjectMapper().writeValueAsString(jwtResponse);
         response.setContentType("application/json; charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonBody);
         response.flushBuffer();
+        logger.info("Successfully authenticated user: " + username);
     }
 }

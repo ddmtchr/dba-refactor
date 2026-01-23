@@ -2,6 +2,7 @@ package com.ddmtchr.dbarefactor.service.scheduling;
 
 import com.ddmtchr.dbarefactor.service.BookingFinisher;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -10,6 +11,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 @PersistJobDataAfterExecution
@@ -20,6 +22,8 @@ public class BookingFinishJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(@NonNull JobExecutionContext context) throws JobExecutionException {
+        log.info("----- Job BookingFinishJob started -----");
         this.bookingFinisher.processFinish();
+        log.info("----- Job BookingFinishJob finished -----");
     }
 }

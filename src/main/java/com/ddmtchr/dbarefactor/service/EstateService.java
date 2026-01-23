@@ -10,10 +10,13 @@ import com.ddmtchr.dbarefactor.security.entity.User;
 import com.ddmtchr.dbarefactor.security.repository.UserRepository;
 import com.ddmtchr.dbarefactor.security.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EstateService {
@@ -21,12 +24,15 @@ public class EstateService {
     private final UserRepository userRepository;
     private final EstateMapper mapper = EstateMapper.INSTANCE;
 
+    @Transactional
     public EstateResponseDto addEstate(EstateRequestDto dto) {
         String username = SecurityUtil.getCurrentUser().getUsername();
         User owner = this.userRepository.findByUsername(username).orElseThrow(() -> new NotFoundException(String.format("User with username=%s was not found", username)));
         Estate entity = this.mapper.toEntity(dto);
         entity.setOwner(owner);
-        return this.mapper.toResponseDto(this.estateRepository.save(entity));
+        Estate saved = this.estateRepository.save(entity);
+        log.info("Created new estate. Name: {}, owner: {}", saved.getName(), saved.getOwner().getUsername());
+        return this.mapper.toResponseDto(saved);
     }
 
     public List<EstateResponseDto> findAll() {

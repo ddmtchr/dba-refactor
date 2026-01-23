@@ -13,8 +13,6 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 
 @Slf4j
 @Component
@@ -41,25 +39,6 @@ public class JwtProvider {
                 .build();
     }
 
-    public Optional<JwtResponseDto> refreshTokens(String refreshToken) {
-        if (TOKEN_CACHE.containsKey(refreshToken) && validateToken(refreshToken)) {
-            String login = JwtUtil.getLoginFromToken(refreshToken);
-            Date expiredDate = new Date(System.currentTimeMillis() + expirationTimeInMills);
-            Date refreshTokenExpiredDate = Date.from(LocalDate.now().plusDays(7).atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-            String newRefreshToken = generateToken(login, refreshTokenExpiredDate);
-            String newAccessToken = TOKEN_CACHE.computeIfPresent(refreshToken, (it, value) -> generateToken(login, expiredDate));
-            TOKEN_CACHE.remove(refreshToken);
-            TOKEN_CACHE.putIfAbsent(newRefreshToken, newAccessToken);
-
-            return Optional.of(JwtResponseDto.builder()
-                    .refreshToken(newRefreshToken)
-                    .accessToken(newAccessToken)
-                    .build());
-        }
-        return Optional.empty();
-    }
-
     public boolean validateToken(String token) {
         try {
             JwtUtil.extractClaims(token);
@@ -70,10 +49,10 @@ public class JwtProvider {
                     String login = ((ExpiredJwtException) e).getClaims().getSubject();
                     log.warn("JWT token expired for user '{}: {}", login, e.getMessage());
                 } catch (Exception ex) {
-                    log.warn(ex.getMessage(), ex);
+                    log.warn(ex.getMessage());
                 }
             } else {
-                log.warn(e.getMessage(), e);
+                log.warn(e.getMessage());
             }
         }
         return false;
@@ -86,19 +65,5 @@ public class JwtProvider {
                 .setExpiration(expiredDate);
 
         return JwtUtil.buildJwt(claims);
-    }
-
-    public boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
-
-    public <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
-        final Claims claim = JwtUtil.extractClaims(token);
-        return claimResolver.apply(claim);
     }
 }

@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -42,10 +43,12 @@ public class CheckMessageSender {
             log.warn("Batch send failed, will retry later. {}", e.getMessage());
             return;
         } catch (JsonProcessingException e) {
-            log.warn("JSON processing ex. Batch send failed, will retry later. {}", e.getMessage());
+            log.warn("JSON processing exception. Batch send failed, will retry later. {}", e.getMessage());
             return;
         }
 
-        checkMessageService.markSentByIds(batch.stream().map(CheckMessage::getBookingId).collect(Collectors.toSet()));
+        Set<Long> checkIds = batch.stream().map(CheckMessage::getBookingId).collect(Collectors.toSet());
+        checkMessageService.markSentByIds(checkIds);
+        log.info("Number of checks sent: {}", checkIds.size());
     }
 }

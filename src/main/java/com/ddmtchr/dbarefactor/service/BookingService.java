@@ -18,6 +18,7 @@ import com.ddmtchr.dbarefactor.security.entity.User;
 import com.ddmtchr.dbarefactor.security.repository.UserRepository;
 import com.ddmtchr.dbarefactor.security.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookingService {
@@ -45,8 +47,9 @@ public class BookingService {
         entity.setEstate(estate);
         entity.setGuest(guest);
         entity.setStatus(BookingStatus.PENDING_HOST_REVIEW);
-
-        return this.mapper.toResponseDto(this.repository.save(entity));
+        Booking saved = this.repository.save(entity);
+        log.info("Created new booking. Guest: {}, estate: {}", saved.getGuest().getUsername(), saved.getEstate().getName());
+        return this.mapper.toResponseDto(saved);
     }
 
     public List<BookingResponseDto> findAllByHost(String username) {
@@ -72,7 +75,9 @@ public class BookingService {
 
         booking.setStatus(BookingStatus.PENDING_PAYMENT);
         booking.setPaymentRequestTime(LocalDateTime.now());
-        return this.mapper.toResponseDto(this.repository.save(booking));
+        Booking saved = this.repository.save(booking);
+        log.info("Booking with id={} has been approved by host", saved.getId());
+        return this.mapper.toResponseDto(saved);
     }
 
     @Transactional
@@ -85,7 +90,9 @@ public class BookingService {
         }
 
         booking.setStatus(BookingStatus.REJECTED_BY_HOST);
-        return this.mapper.toResponseDto(this.repository.save(booking));
+        Booking saved = this.repository.save(booking);
+        log.info("Booking with id={} has been rejected by host", saved.getId());
+        return this.mapper.toResponseDto(saved);
     }
 
     @Transactional
@@ -99,7 +106,9 @@ public class BookingService {
 
         this.mapper.updateBooking(dto, booking);
         booking.setStatus(BookingStatus.PENDING_CHANGES_REVIEW);
-        return this.mapper.toResponseDto(this.repository.save(booking));
+        Booking saved = this.repository.save(booking);
+        log.info("Changes to booking with id={} have been suggested by guest", saved.getId());
+        return this.mapper.toResponseDto(saved);
     }
 
     @Transactional
@@ -113,7 +122,9 @@ public class BookingService {
 
         booking.setStatus(BookingStatus.PENDING_PAYMENT);
         booking.setPaymentRequestTime(LocalDateTime.now());
-        return this.mapper.toResponseDto(this.repository.save(booking));
+        Booking saved = this.repository.save(booking);
+        log.info("Changes to booking with id={} have been approved by host", saved.getId());
+        return this.mapper.toResponseDto(saved);
     }
 
     @Transactional
@@ -126,7 +137,9 @@ public class BookingService {
         }
 
         booking.setStatus(BookingStatus.REJECTED_BY_GUEST);
-        return this.mapper.toResponseDto(this.repository.save(booking));
+        Booking saved = this.repository.save(booking);
+        log.info("Changes to booking with id={} have been rejected by host", saved.getId());
+        return this.mapper.toResponseDto(saved);
     }
 
     @Transactional
@@ -149,6 +162,8 @@ public class BookingService {
         this.repository.save(booking);
         this.userRepository.save(guest);
 
+        log.info("Guest {} was charged for the booking with id={}. Amount: {}", guest.getUsername(), booking.getId(), amountToPay);
+
         this.checkMessageService.save(new CheckDto(
                 booking.getId(),
                 guest.getUsername(),
@@ -170,7 +185,9 @@ public class BookingService {
 
         booking.setStatus(BookingStatus.PENDING_PAYMENT_TO_HOST);
         booking.setPayoutScheduledAt(LocalDateTime.now().plusMinutes(1));
-        return this.mapper.toResponseDto(this.repository.save(booking));
+        Booking saved = this.repository.save(booking);
+        log.info("Guest for booking with id={} has checked in successfully", saved.getId());
+        return this.mapper.toResponseDto(saved);
     }
 
 
