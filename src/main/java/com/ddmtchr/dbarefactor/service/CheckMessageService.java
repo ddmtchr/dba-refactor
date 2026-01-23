@@ -30,7 +30,7 @@ public class CheckMessageService {
     }
 
     @Transactional
-    void markSentByIds(Collection<Long> ids) {
+    public void markSentByIds(Collection<Long> ids) {
         checkMessageRepository.setSentByBookingIdIn(ids);
     }
 }

@@ -19,9 +19,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findByGuestUsername(String username);
 
-
-    List<Booking> findByStatusAndPaymentRequestTimeBefore(BookingStatus status, LocalDateTime time);
-
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("update Booking b set b.status = :statusToSet " +
             "where b.status = :statusToFind " +
@@ -37,8 +34,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "and b.payoutScheduledAt < :time")
     Integer updateStatusByIdsAndPayoutScheduledAtBefore(@Param("ids") Collection<Long> ids, @Param("time") LocalDateTime time, @Param("status") BookingStatus status);
 
-
-    List<Booking> findByStatusAndEndDateBefore(BookingStatus status, LocalDate time);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("update Booking b set b.status = :statusToSet " +
